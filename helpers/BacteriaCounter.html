@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Bacteria Counter</title>
+        <style>
+            div {
+                display: flex;
+            }
+            div>figure {
+                margin: 10pt;
+            }
+            div>figure>img{
+                width: 200pt;
+            }
+            div>figure>canvs{
+                width: 200pt;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <h1>Bacteria Counter</h1>
+            <div>
+                <figure class="inputoutput">
+                    <img id="imageSrc" alt="No Image" />
+                    <figcaption>Image Source: <input type="file" id="fileInput" name="file"></figcaption>
+                </figure>
+                <figure class="inputoutput">
+                    <canvas id="canvasOutput"></canvas>
+                    <figcaption id="cellCount"></figcaption>
+                </figure>
+            </div>
+        </section>
+        <script src="https://docs.opencv.org/4.x/opencv.js"></script>
+        <script type="text/javascript">
+            let imgElement = document.getElementById("imageSrc");
+            let inputElement = document.getElementById("fileInput");
+            let cellCount = document.getElementById("cellCount");
+
+            inputElement.addEventListener("change", (e) => {
+                imgElement.src = URL.createObjectURL(e.target.files[0]);
+            }, false);
+
+            imgElement.onload = function() {
+                let mat = cv.imread(imgElement);
+                let pre = PreProcess(mat, BlurrFunc, ThreshFunc);
+                let cells = GetCells(mat, pre);
+                cv.imshow('canvasOutput', mat);
+                mat.delete();
+            };
+
+            var module = {
+                onRuntimeInitialized() {
+                    document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+                }
+            };
+
+            function BlurrFunc(gray, blurred){
+                cv.GaussianBlur(gray, blurred, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
+            };
+
+            function ThreshFunc(blurred, thresh){
+                cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+            }
+
+            function PreProcess(mat, blurFunc, threshFunc){
+                let gray = new cv.Mat();
+                cv.cvtColor(mat, gray, cv.COLOR_BGR2GRAY);
+                let blurred = new cv.Mat();
+                blurFunc(gray, blurred);
+                let thresh = new cv.Mat();
+                threshFunc(blurred, thresh);
+                let out = new cv.Mat();
+                cv.bitwise_not(thresh, out);
+                gray.delete();
+                blurred.delete();
+                thresh.delete();
+                return out
+            };
+
+            function DrawCell(mat, cnt, i){
+                let x,y,w,h = cv.boundingRect(cnt);
+                let color = new cv.Scalar(255,0,0);
+                let cnts = new cv.MatVector();
+                cnts.push_back(cnt)
+                cv.drawContours(mat, cnts, -1, color, 2);
+                cv.putText(mat, `${i}`, new cv.Point(x, y), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Scalar(255, 255, 255), 1);
+            };
+
+            function GetCells(mat, pre){
+                let cells = [];
+                let cnts = new cv.MatVector();
+                let hierarchy = new cv.Mat(); 
+                cv.findContours(pre, cnts, hierarchy, cv.RETR_TREE, cv.CHAIN_APPROX_NONE);
+                i = 0;
+                for(let c=0; c<cnts.size(); ++c){
+                    let cnt = cnts.get(c);
+                    let chier = hierarchy.intPtr(0, c);
+                    if(chier[3] < 0){
+                        i+=1;
+                        DrawCell(mat, cnt, i);
+                        cells.push(cnt);
+                    }
+                }
+                cnts.delete();
+                hierarchy.delete();
+                return cells;
+            }
+        </script>
+        </section>
+    </body>
+</html>
