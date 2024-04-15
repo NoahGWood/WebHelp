@@ -11,9 +11,9 @@
     </head>
     <body class="container px-4 text-center">
         <include-element src="partials/navbar.html"></include-element>
-        <section>
-            <h1>List Of Helpful Programs</h1>
-            <div class="card">
+        <h1>List Of Helpful Programs</h1>
+        <section class="row">
+            <div class="card col">
                 <div class="card-header">Bacteria Counter</div>
                 <a class="card-body" href="helpers/BacteriaCounter.html">
                     <figure>
@@ -22,7 +22,21 @@
                     </figure>
                 </a>
             </div>
+            <div class="card col">
+                <div class="card-header">Base 64 Encode/Decoder</div>
+                <a class="card-body" href="helpers/Base64Helper.html">
+                    <figure>
+                        <img src="imgs/b64Helper.png">
+                        <figcaption>Base 64 Encode/Decode</figcaption>
+                    </figure>
+                </a>
+            </div>
         </section>
         <include-element src="partials/footer.html"></include-element>
+        <style>
+            img{
+                max-width: 100%;
+            }
+        </style>
     </body>
 </html>
