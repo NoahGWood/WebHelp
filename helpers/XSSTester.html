@@ -13,15 +13,14 @@
         <include-element src="../partials/navbar.html"></include-element>
         <div class="container mt-5">
             <h1 class="text-center mb-4">Cross Site Scripting Tester</h1>
-            <p>No alerts? You are likely protected against XSS attacks!</p>
+            <p>No alerts? You are likely protected against XSS attacks! Check console for more information</p>
         </div>
         <script>
             if(window.top !== window){
                 alert("The script is manipulating the DOM above itself!");
+                var sc = window.top.document.createElement("script");
+                sc.src = "https://noahgwood.github.io/WebHelp/js/xss_injection.js"
             }
-            var x = document.cookie;
-            if(x.length > 0)
-                alert("Cookies stolen!\n" + x);
         </script>
         <include-element src="../partials/footer.html"></include-element>
     </body>
